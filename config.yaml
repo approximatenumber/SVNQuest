@@ -1,0 +1,5 @@
+
+remotes:
+  - url: http://svn.apache.org/repos/asf/abdera/abdera2/activities/
+    alias: Activities
+

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>SVNquest</title>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/jstree/themes/default/style.min.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="/css/custom.css" />
+
+</head>
+<body>
+</br>
+</br>
+
+<h1>Available for you:</h1>
+
+{% for remote in results %}
+
+	{% if remote.get('repo_alias') %}
+		{% set link_text = remote['repo_alias'] %}
+	{% else %}
+		{% set link_text = remote['repo_url'] %}
+	{% endif %}
+
+	<li><a style="font-size: 20px" href="{{remote['id']}}.html">{{link_text}}</a></li>
+
+{% endfor %}
+
+</body>
+</html>

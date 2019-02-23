@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>SVNquest | {{repo_url}} </title>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/jstree/themes/default/style.min.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="/jstree/jstree.js"></script>
+	<link rel="stylesheet" href="/css/custom.css" />
+
+</head>
+<body>
+
+
+{% if repo_alias %}
+	<h1>{{repo_alias}}</h1>
+{% else %}
+	<h1>{{repo_url}}</h1>
+</br>
+{% endif %}
+
+<div class="ajax_loader hidden"><i class="fa fa-spinner fa-spin"></i></div>
+
+<form class="search" action="javascript:void(0);" style="margin:auto;max-width:500px">
+	<input type="text" class="search_field" placeholder="Search..." id="search_field">
+	<span class="input-group-btn">
+		<button type="submit" class="search_button" type="button" id="search_button">
+				<i class="fa fa-search"></i>
+		</button>
+	</span>
+</form>
+</br>
+
+<hr>
+
+<div id="tree"</div>
+	
+<script>
+	var repo = "{{repo_url}}";
+
+	$('#tree').jstree({
+	    'core' : {
+	        'data' : {
+	            'url' : function (node) {
+	                return '/{{remotes_dir}}/{{id}}.json';
+	             },
+	            'data' : function (node) {
+	                return { 'id' : node.id };
+	            }
+	         }
+	    },
+		'types': {
+			    "file" : {
+			      "icon" : "glyphicon glyphicon-file",
+			      "valid_children" : []
+	    		}
+	 	},
+	 	'plugins': ['search', 'contextmenu'],
+	    "search": {
+	        "case_sensitive": true,
+	        "show_only_matches": false,
+	        "close_opened_onclear": true
+	    },
+		"contextmenu": {
+		  "items": function ($node) {
+		    var tree = $("#tree").jstree(true);
+		    return {
+		      "goto": {
+		        "separator_before": false,
+		        "separator_after": false,
+		        "label": "Show in repository",
+		        "action": function (obj) {
+		        	var clickedItem = $('#tree').jstree().get_selected(true)[0];
+		          	var fullPath = $('#tree').jstree().get_path(clickedItem).join('/');
+		          	window.open(
+					  repo + '/' + fullPath,
+					  '_blank' // <- This is what makes it open in a new window.
+					);
+		        }
+		      }
+		    }
+		  }
+		}
+	 })
+	$(".search_button").click("click", function() {
+		var searchString = document.getElementById('search_field').value;
+		if (!searchString) {
+			return false
+		}
+		$(".hidden").show(100);
+		$('#tree').hide(100);
+		$('#tree').jstree('search', searchString);
+	    
+	     setTimeout(function(){
+			$('#tree').show(100);
+	    	$(".hidden").hide(100);
+		},1000);
+	});
+</script>
+</body>
+</html>
