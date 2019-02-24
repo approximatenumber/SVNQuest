@@ -159,7 +159,8 @@ def main():
         template = env.get_template('index.html.template')
         html_filename = template.name.replace('.template', '')
         with open(os.path.join(HTML_DIR, html_filename), 'w') as f:
-            f.write(template.render(results=results))
+            f.write(template.render(results=results,
+                                    remotes_dir=REMOTES_DIR))
 
 if __name__ == '__main__':
     main()
