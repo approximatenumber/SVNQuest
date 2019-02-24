@@ -38,4 +38,9 @@ Choose repo and try to search something:
 
 ![Imgur](https://i.imgur.com/YhG3Emm.png)
 
+Right-click and you can open chosen file/directory in svn-browser:
+
+![Imgur](https://i.imgur.com/bJ6qrXK.png)
+
 You can create cron-task to regularly update repositories index.
+
