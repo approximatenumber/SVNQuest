@@ -1,4 +1,4 @@
-# SVNRequest
+# SVNQuest
 
 ## Visual web-tool to observe SVN-repositories and easily search through them.
 
