@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/approximatenumber/SVNQuest.svg?branch=master)](https://travis-ci.com/approximatenumber/SVNQuest)
+
 # SVNQuest
 
 ## Visual web-tool to observe SVN-repositories and easily search through them.

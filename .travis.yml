@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.5"
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - docker run --rm --name nginx -v ${PWD}:/usr/share/nginx/html -p 80:80 -d nginx
+  - sed -i "s|<url>|http://svn.apache.org/repos/asf/knox/trunk/src/|" config.yaml
+  - sed -i "s|<alias>|knox|" config.yaml
+
+script:
+  - python svnquest.py
+  - curl --head localhost/html
+  - curl --head localhost/html/knox.html
