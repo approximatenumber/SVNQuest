@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.5"
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - docker run --rm --name nginx -v ${PWD}:/usr/share/nginx/html -p 80:80 -d nginx
+
+script:
+  - python svnquest.py
+  - curl --head localhost/html/knox.html

@@ -1,4 +1,4 @@
 
 remotes:
-  - url: http://svn.apache.org/repos/asf/spamassassin/trunk
-    alias: Spam Assassin
+  - url: http://svn.apache.org/repos/asf/knox/trunk/src/
+    alias: knox
