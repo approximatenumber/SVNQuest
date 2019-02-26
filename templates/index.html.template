@@ -16,12 +16,12 @@
 
 <h1>Available for you:</h1>
 
-{% for remote in results %}
+{% for remote in ready_remotes %}
 
-	{% if remote.get('repo_alias') %}
-		{% set link_text = remote['repo_alias'] %}
+	{% if remote.get('remote_alias') %}
+		{% set link_text = remote['remote_alias'] %}
 	{% else %}
-		{% set link_text = remote['repo_url'] %}
+		{% set link_text = remote['remote_url'] %}
 	{% endif %}
 
 	<li><a style="font-size: 20px" href="{{remote['id']}}.html">{{link_text}}</a></li>
