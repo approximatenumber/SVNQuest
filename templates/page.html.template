@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>SVNquest | {{repo_url}} </title>
+	<title>SVNquest | {{remote_alias}} </title>
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="../jstree/themes/default/style.min.css" />
@@ -14,10 +14,10 @@
 <body>
 
 
-{% if repo_alias %}
-	<h1>{{repo_alias}}</h1>
+{% if remote_alias %}
+	<h1>{{remote_alias}}</h1>
 {% else %}
-	<h1>{{repo_url}}</h1>
+	<h1>{{remote_url}}</h1>
 </br>
 {% endif %}
 
@@ -38,7 +38,7 @@
 <div id="tree"</div>
 	
 <script>
-	var repo = "{{repo_url}}";
+	var repo = "{{remote_url}}";
 
 	$('#tree').jstree({
 	    'core' : {

@@ -16,6 +16,10 @@ TEMPLATES_DIR = 'templates'
 REMOTES_DIR = 'remotes'
 HTML_DIR = 'html'
 
+os.makedirs(REMOTES_DIR, exist_ok=True)
+os.makedirs(HTML_DIR, exist_ok=True)
+
+
 def remove_contents(path):
     for c in os.listdir(path):
         full_path = os.path.join(path, c)
@@ -27,9 +31,9 @@ def remove_contents(path):
 def is_file(part: str, splitted: list) -> bool:
     """Check if substring is not a directory.
     In case of directory the last item
-    in splitted path is empty (because we split by '/'):
-    ['Registrars', 'BR-226', 'trunk', '']
-    So we check that part is last in splitted list
+    in splitted path is empty (because split by '/'):
+    ['site', 'html', 'css', '']
+    So check that part is last in splitted list
     and last part is not empty.
     """
     return part == splitted[-1] and part != ""
@@ -102,7 +106,7 @@ def jsoned_tree(paths: list) -> list:
     return json_paths
 
 
-def get_svn_listing(url: str) -> list:
+def svn_list(url: str) -> list:
     print('Listing url: %s' % url)
     with subprocess.Popen(['svn', 'ls', '-R', url],
                           stdout=subprocess.PIPE) as process:
@@ -114,30 +118,37 @@ def get_svn_listing(url: str) -> list:
     return output.decode('utf-8').splitlines()
 
 
-def generate_id(size=6, chars=string.ascii_lowercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+def generate_id(remote_alias,
+                size=6,
+                chars=string.ascii_lowercase + string.digits):
+    # generate random id if no alias is set
+    if not remote_alias:
+        return ''.join(random.choice(chars) for _ in range(size))
+    return remote_alias.lower()\
+                       .replace('\s:-', '_')
 
 
 def main():
 
     config = yaml.load(open(CONFIG).read())
 
+    # it will be not needed in future
     remove_contents(REMOTES_DIR)
     remove_contents(HTML_DIR)
 
-    results = list()
+    ready_remotes = list()
 
     for remote in config['remotes']:
-        repo_url = remote.get('url')
-        repo_alias = remote.get('alias')
+        remote_url = remote.get('url')
+        remote_alias = remote.get('alias')
 
-        listing = get_svn_listing(repo_url)
+        listing = svn_list(remote_url)
         if not listing:
-            print('Cannot list url: %s' % URL)
+            print('Cannot list url: %s' % remote_url)
             continue
 
         jsoned_listing = jsoned_tree(listing)
-        remote_id = generate_id()
+        remote_id = generate_id(remote_alias)
         with open(os.path.join(REMOTES_DIR, remote_id + '.json'),
                   'w') as f:
             f.write(json.dumps(jsoned_listing,
@@ -148,18 +159,20 @@ def main():
         html_filename = remote_id + '.html'
         with open(os.path.join(HTML_DIR, html_filename), 'w') as f:
             f.write(template.render(id=remote_id,
-                                    repo_url=repo_url,
-                                    repo_alias=repo_alias,
+                                    remote_url=remote_url,
+                                    remote_alias=remote_alias,
                                     remotes_dir=REMOTES_DIR))
 
-        results.append({'id': remote_id, 'repo_url': repo_url, 'repo_alias': repo_alias})
+        ready_remotes.append(
+            {'id': remote_id,
+             'remote_url': remote_url,
+             'remote_alias': remote_alias})
 
-
-    if results:
+    if ready_remotes:
         template = env.get_template('index.html.template')
         html_filename = template.name.replace('.template', '')
         with open(os.path.join(HTML_DIR, html_filename), 'w') as f:
-            f.write(template.render(results=results,
+            f.write(template.render(ready_remotes=ready_remotes,
                                     remotes_dir=REMOTES_DIR))
 
 if __name__ == '__main__':
