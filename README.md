@@ -28,6 +28,17 @@ remotes:
   - url: http://svn.apache.org/repos/asf/falcon/trunk
     alias: Falcon
 ```
+
+You can user `username` and `password` if you have restricted repo:
+
+```yaml
+remotes:
+  - url: http://svn.apache.org/repos/asf/spamassassin/trunk
+    alias: Spam Assassin
+    username: guest
+    password: guest
+```
+
 3. Run `python3 svnquest.py`. It will list and generate files with this listing. Then you can find generated files iniside `html/` and `remotes/` directories.
 
 ### Navigation
