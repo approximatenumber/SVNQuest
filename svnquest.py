@@ -34,19 +34,24 @@ class SVNRequest():
         """Main function to generate all files."""
         generated = list()
         for remote in self.config['remotes']:
+
             remote_url = remote.get('url')
             remote_alias = remote.get('alias')
-            remote_id = self._get_id(remote_alias)
+            remote_id = self.get_id(remote_alias)
+            remote_username = remote.get('username')
+            remote_password = remote.get('password')
 
-            if not self._generate_remote_json(remote_id,
-                                              remote_url):
+            if not self.generate_remote_json(remote_id,
+                                             remote_url,
+                                             username=remote_username,
+                                             password=remote_password):
                 print(
                     'Cannot generate json for url: %s' % remote_url)
                 return False
 
-            if not self._generate_remote_html(remote_id,
-                                              remote_url,
-                                              remote_alias):
+            if not self.generate_remote_html(remote_id,
+                                             remote_url,
+                                             remote_alias):
                 print(
                     'Cannot generate html for url: %s' % remote_url)
                 return False
@@ -59,7 +64,7 @@ class SVNRequest():
         if not generated:
             print('Generation failed: nothing to do.')
             return False
-        self._generate_index_html(generated)
+        self.generate_index_html(generated)
         return True
 
     def remove_contents(self, path: str) -> None:
@@ -147,10 +152,24 @@ class SVNRequest():
         json_paths = stage2(items)
         return json_paths
 
-    def svn_list(self, url: str) -> list:
+    def svn_command_line(self, url: str, **parameters: dict) -> list:
+        """Create command line for 'svn ls' with optional parametes.
+        """
+        command = ['svn', 'ls', '-R']
+        if parameters.get('username'):
+            command.append('--username')
+            command.append(parameters['username'])
+        if parameters.get('password'):
+            command.append('--password')
+            command.append(parameters['password'])
+        command.append(url)
+        return command
+
+    def svn_list(self, url: str, **parameters: dict) -> list:
         """Exectute 'svn ls' and returns listing."""
         print('Listing url: %s' % url)
-        with subprocess.Popen(['svn', 'ls', '-R', url],
+        command_line = self.svn_command_line(url, **parameters)
+        with subprocess.Popen(command_line,
                               stdout=subprocess.PIPE) as process:
                 output, err = process.communicate()
         if err:
@@ -159,7 +178,7 @@ class SVNRequest():
 
         return output.decode('utf-8').splitlines()
 
-    def _get_id(self,
+    def get_id(self,
                 remote_alias: str,
                 size=6,
                 chars=string.ascii_lowercase + string.digits) -> str:
@@ -169,10 +188,11 @@ class SVNRequest():
         return remote_alias.lower()\
                            .replace('\s:-', '_')
 
-    def _generate_remote_json(self,
+    def generate_remote_json(self,
                               remote_id: str,
-                              remote_url: str) -> bool:
-        listing = self.svn_list(remote_url)
+                              remote_url: str,
+                              **parameters) -> bool:
+        listing = self.svn_list(remote_url, **parameters)
         if not listing:
             print('Cannot list url: %s' % remote_url)
             return False
@@ -183,7 +203,7 @@ class SVNRequest():
                                ensure_ascii=False))
         return True
 
-    def _generate_remote_html(self,
+    def generate_remote_html(self,
                               remote_id: str,
                               remote_url: str,
                               remote_alias: str) -> bool:
@@ -196,7 +216,7 @@ class SVNRequest():
                                     remotes_dir=REMOTES_DIR))
         return True
 
-    def _generate_index_html(self, generated: dict) -> None:
+    def generate_index_html(self, generated: dict) -> None:
         template = self.env.get_template('index.html.template')
         html_filename = template.name.replace('.template', '')
         with open(os.path.join(HTML_DIR, html_filename), 'w') as f:
